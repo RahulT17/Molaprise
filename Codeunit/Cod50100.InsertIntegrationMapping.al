@@ -138,6 +138,8 @@ codeunit 50100 "Insert Integration Mapping"
                 PurchaseHeader."Remark 1" := SalesHeader."Remark 1";
                 PurchaseHeader."Remark 2" := SalesHeader."Remark 2";
                 PurchaseHeader."Service Period" := SalesHeader."Service Period";
+                PurchaseHeader."Sales Order No." := SalesHeader."No.";
+                //SalesHeader."Purchase Order No." := PurchaseHeader."No.";
                 PurchaseHeader.Modify();
 
             end;

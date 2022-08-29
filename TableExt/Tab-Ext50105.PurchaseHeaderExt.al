@@ -22,5 +22,10 @@ tableextension 50105 "Purchase Header Ext" extends "Purchase Header"
             Caption = 'Remark 2';
             DataClassification = ToBeClassified;
         }
+        field(50104; "Sales Order No."; Code[20])
+        {
+            Caption = 'Sales Order No.';
+            DataClassification = ToBeClassified;
+        }
     }
 }

@@ -20,6 +20,10 @@ pageextension 50109 "Purchase Order Ext" extends "Purchase Order"
             {
                 ApplicationArea = All;
             }
+            field("Sales Order No."; "Sales Order No.")
+            {
+                ApplicationArea = All;
+            }
         }
     }
 }

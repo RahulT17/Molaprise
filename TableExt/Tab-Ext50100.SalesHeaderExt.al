@@ -26,10 +26,28 @@ tableextension 50100 "Sales Header Ext" extends "Sales Header"
             Caption = 'Remark 2';
             DataClassification = ToBeClassified;
         }
+        field(50104; "Purchase Order No."; Code[20])
+        {
+            Caption = 'Purchase Order No.';
+            DataClassification = ToBeClassified;
+        }
+        field(50105; "Vendor Name"; Text[100])
+        {
+            Caption = 'Vendor Name';
+            DataClassification = ToBeClassified;
+            //TableRelation = Vendor;
+        }
+        field(50106; "Vendor No."; Code[20])
+        {
+            Caption = 'Vendor No.';
+            DataClassification = ToBeClassified;
+            TableRelation = Vendor;
+        }
     }
     var
         codee: codeunit 50100;
         Purch: Page 50;
         purchTab: Record 38;
         SalesPage: Page 45;
+        Vendor: Record Vendor;
 }
