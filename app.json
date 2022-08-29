@@ -1,0 +1,36 @@
+{
+  "id": "dbfb94fb-f7ab-4056-9416-d01716891d45",
+  "name": "Molaprise",
+  "publisher": "Shaligram Infotech",
+  "version": "1.0.0.11",
+  "brief": "",
+  "description": "",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [
+    {
+      "id": "96a49c0c-8183-4248-9630-636462acfa39",
+      "publisher": "Nodus Technologies, Inc.",
+      "name": "PayFabric · Secure Credit Card Processing",
+      "version": "20.0.0.0"
+    }
+  ],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "20.0.0.0",
+  "idRanges": [
+    {
+      "from": 50100,
+      "to": 50149
+    }
+  ],
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": false,
+    "includeSourceInSymbolFile": false
+  },
+  "runtime": "9.0"
+}

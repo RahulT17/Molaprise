@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Sandbox",
+            "request": "launch",
+            "type": "al",
+            "environmentType": "Sandbox",
+            "environmentName": "Sandbox",
+            "startupObjectId": 22,
+            "startupObjectType": "Page",
+            "tenant": "2fa0a31b-637e-4e9b-8f70-edb441565e18",
+            "breakOnError": true,
+            "launchBrowser": true,
+            "enableLongRunningSqlStatements": true,
+            "enableSqlInformationDebugger": true,
+            "schemaUpdateMode": "Synchronize"
+        }
+    ]
+}
