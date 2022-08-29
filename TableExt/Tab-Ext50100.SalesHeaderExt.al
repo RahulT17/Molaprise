@@ -43,6 +43,11 @@ tableextension 50100 "Sales Header Ext" extends "Sales Header"
             DataClassification = ToBeClassified;
             TableRelation = Vendor;
         }
+        field(50108; "Drop Shipment"; Boolean)
+        {
+            Caption = 'Drop Shipment';
+            DataClassification = ToBeClassified;
+        }
     }
     var
         codee: codeunit 50100;

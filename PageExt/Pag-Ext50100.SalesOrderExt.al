@@ -41,6 +41,10 @@ pageextension 50100 "Sales Order Ext" extends "Sales Order"
                 Editable = false;
 
             }
+            field("Drop Shipment"; "Drop Shipment")
+            {
+                ApplicationArea = All;
+            }
 
         }
     }
