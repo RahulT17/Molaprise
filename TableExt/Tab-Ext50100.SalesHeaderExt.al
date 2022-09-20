@@ -37,7 +37,7 @@ tableextension 50100 "Sales Header Ext" extends "Sales Header"
             DataClassification = ToBeClassified;
             //TableRelation = Vendor;
         }
-        field(50106; "Vendor No."; Code[20])
+        field(50106; "Vendor No."; Code[250])
         {
             Caption = 'Vendor No.';
             DataClassification = ToBeClassified;
@@ -46,6 +46,21 @@ tableextension 50100 "Sales Header Ext" extends "Sales Header"
         field(50108; "Drop Shipment"; Boolean)
         {
             Caption = 'Drop Shipment';
+            DataClassification = ToBeClassified;
+        }
+        field(50109; "Vendor Total Cost Order"; Decimal)
+        {
+            Caption = 'Vendor Total Cost Order';
+            DataClassification = ToBeClassified;
+        }
+        field(50110; "Vendor Reference Id"; Text[250])
+        {
+            Caption = 'Vendor Reference Id';
+            DataClassification = ToBeClassified;
+        }
+        field(50111; "Order Submitted By"; Text[250])
+        {
+            Caption = 'Order Submitted By';
             DataClassification = ToBeClassified;
         }
     }

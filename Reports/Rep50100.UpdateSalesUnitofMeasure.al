@@ -47,24 +47,24 @@ report 50100 "Update Sales Unit of Measure"
                             recItem.Modify()
                         end;
 
-                        If recItem.Type = recItem.Type::"Non-Inventory" then begin
-                            recItem."Gen. Prod. Posting Group" := 'NO TAX';
-                            recItem."Tax Group Code" := 'NONTAXABLE';
-                            recItem.Modify()
-                        end;
+                    // If recItem.Type = recItem.Type::"Non-Inventory" then begin
+                    //     recItem."Gen. Prod. Posting Group" := 'NO TAX';
+                    //     recItem."Tax Group Code" := 'NONTAXABLE';
+                    //     recItem.Modify()
+                    // end;
 
-                        If recItem.Type = recItem.Type::Inventory then begin
-                            recItem."Gen. Prod. Posting Group" := 'RETAIL';
-                            recItem."Tax Group Code" := 'TAXABLE';
-                            recItem."Inventory Posting Group" := 'RESALE';
-                            recItem.Modify()
-                        end;
+                    // If recItem.Type = recItem.Type::Inventory then begin
+                    //     recItem."Gen. Prod. Posting Group" := 'RETAIL';
+                    //     recItem."Tax Group Code" := 'TAXABLE';
+                    //     recItem."Inventory Posting Group" := 'RESALE';
+                    //     recItem.Modify()
+                    // end;
 
-                        If recItem.Type = recItem.Type::Service then begin
-                            recItem."Gen. Prod. Posting Group" := 'SERVICES';
-                            recItem."Tax Group Code" := 'NONTAXABLE';
-                            recItem.Modify()
-                        end;
+                    // If recItem.Type = recItem.Type::Service then begin
+                    //     recItem."Gen. Prod. Posting Group" := 'SERVICES';
+                    //     recItem."Tax Group Code" := 'NONTAXABLE';
+                    //     recItem.Modify()
+                    // end;
 
                     // if recItem."Unit Price" = 0.00 then begin
                     //     recItem."Unit Price" := recItem."Unit Cost";
@@ -73,6 +73,8 @@ report 50100 "Update Sales Unit of Measure"
 
                     until recItem.Next = 0;
                 end;
+                //UpdateDimensionValues();
+
             end;
         }
     }
@@ -94,4 +96,36 @@ report 50100 "Update Sales Unit of Measure"
             }
         }
     }
+    // procedure UpdateDimensionValues()
+    // var
+    //     DimVals: Record "CRM Account";
+    //     CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    //     DimensionValue: Record 349;
+    //     recDimensionValue: Record 349;
+    //     DimName: Code[50];
+    // begin
+    //     DimVals.Reset();
+    //     DimVals.SetRange(CustomerTypeCode, DimVals.CustomerTypeCode::Press);
+    //     IF DimVals.FindSet() then
+    //         repeat
+    //         begin
+    //             Clear(DimName);
+    //             recDimensionValue.Reset();
+    //             recDimensionValue.SetRange("Dimension Code", 'MANUFACTURER');
+    //             DimName := dimvals.Name;
+    //             recDimensionValue.SetRange("Code", DimName);
+    //             if recDimensionValue.FindFirst() then begin
+    //                 //Error('Already exists');
+    //             end
+    //             else begin
+    //                 DimensionValue.Init();
+    //                 DimensionValue."Dimension Code" := 'MANUFACTURER';
+    //                 DimensionValue.Code := DimVals.Name;
+    //                 DimensionValue.Name := DimVals.Name;
+    //                 DimensionValue.Insert(true);
+    //             end;
+    //         end;
+    //         until DimVals.Next() = 0;
+    //     CRMIntegrationManagement.CreateNewRecordsFromCRM(DimVals);
+    // end;
 }

@@ -23,5 +23,53 @@ tableextension 50101 "CRM Salesorder Ext" extends "CRM Salesorder"
             ExternalAccess = Full;
             DataClassification = ToBeClassified;
         }
+
+        field(50109; VendorId; Guid)
+        {
+            Caption = 'Vendor Id';
+            DataClassification = ToBeClassified;
+            ExternalAccess = Full;
+            ExternalName = 'sgit_vendor';
+            ExternalType = 'Lookup';
+            TableRelation = "CRM Account".AccountId;
+        }
+        // field(50104; "Vendor No."; Code[250])
+        // {
+        //     ExternalName = 'cr9b4_vendornameorder';
+        //     ExternalType = 'Lookup';
+        //     ExternalAccess = Full;
+        //     DataClassification = ToBeClassified;
+        //     TableRelation = "CRM Account".AccountNumber;
+        // }
+        field(50105; "Vendor Total Cost Order"; Decimal)
+        {
+            ExternalName = 'cr964_vendortotalcostorder';
+            ExternalType = 'Decimal';
+            ExternalAccess = Full;
+            DataClassification = ToBeClassified;
+        }
+        field(50106; "Vendor Reference Id"; Text[250])
+        {
+            ExternalName = 'sgit_vendorreferenceid';
+            ExternalType = 'String';
+            ExternalAccess = Full;
+            DataClassification = ToBeClassified;
+        }
+        field(50107; "Drop Shipment"; Boolean)
+        {
+            ExternalName = 'sgit_isdropshipment';
+            ExternalType = 'Boolean';
+            ExternalAccess = Full;
+            DataClassification = ToBeClassified;
+        }
+        field(50108; "Order Submitted By"; Text[250])
+        {
+            ExternalName = 'sgit_ordersubmittedby';
+            ExternalType = 'String';
+            ExternalAccess = Full;
+            DataClassification = ToBeClassified;
+        }
     }
+    var
+        test: page 26;
 }

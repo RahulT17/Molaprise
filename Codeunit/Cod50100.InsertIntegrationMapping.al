@@ -64,12 +64,51 @@ codeunit 50100 "Insert Integration Mapping"
     CRMSalesorder: Record "CRM Salesorder");
     var
         SalesSetup: Record "Sales & Receivables Setup";
+        CRMAccount: Record "CRM Account";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        NAVCustomerRecordId: RecordID;
+        CRMAccountId: Guid;
+        IsHandled: Boolean;
+        CRMProductName: Codeunit "CRM Product Name";
+        recVendor: Record Vendor;
+        VendorGuid: Code[250];
     begin
         SalesSetup.get();
         SalesHeader."Service Period" := CRMSalesorder."Service Period";
         SalesHeader."Deal Name" := CRMSalesorder."Deal Name";
         SalesHeader."External Document No." := CRMSalesorder."External Document No.";
+        //SalesHeader."Vendor No." := CRMSalesorder."Vendor No.";
+        SalesHeader."Vendor Total Cost Order" := CRMSalesorder."Vendor Total Cost Order";
+        SalesHeader."Vendor Reference Id" := CRMSalesorder."Vendor Reference Id";
+        SalesHeader."Drop Shipment" := CRMSalesorder."Drop Shipment";
+        SalesHeader."Order Submitted By" := CRMSalesorder."Order Submitted By";
+        VendorGuid := DELCHR(CRMSalesorder.VendorId, '=', '{}');
+        if VendorGuid <> '' then begin
+            if not CRMIntegrationRecord.FindRecordIDFromID(VendorGuid, DATABASE::Vendor, NAVCustomerRecordId) then
+                Error('Something went wrong!', 'Cannot create order!', CRMAccount.Name, CRMProductName.CDSServiceName());
+
+            recVendor.Get(NAVCustomerRecordId);
+            //Message(Format(recVendor."No."));
+        end;
+
+        SalesHeader."Vendor No." := recVendor."No.";
+        if recVendor.Get(SalesHeader."Vendor No.") then
+            SalesHeader."Vendor Name" := recVendor.Name;
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Sales Order to Sales Order", 'OnCreateSalesOrderLinesOnBeforeSalesLineInsert', '', false, false)]
+    local procedure OnSalesLineOnbeforeSalesLineInsert(var SalesLine: Record "Sales Line")
+    var
+        recSalesHeader: Record "Sales Header";
+    begin
+        recSalesHeader.RESET;
+        recSalesHeader.SetRange("No.", SalesLine."Document No.");
+        if recSalesHeader.FindFirst() then
+            if recSalesHeader."Drop Shipment" = true then
+                SalesLine."Drop Shipment" := true;
+    end;
+
+
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterInsertRecord', '', false, false)]
     procedure OnAfterInsertRecord(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef)
@@ -115,7 +154,7 @@ codeunit 50100 "Insert Integration Mapping"
     end;
 
     [EventSubscriber(ObjectType::Table, DATABASE::"Purchase Header", 'OnAfterAddShipToAddress', '', true, true)]
-    local procedure CopyFieldFromSalesOrdToPurchOrd(var PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header"; ShowError: Boolean)
+    procedure CopyFieldFromSalesOrdToPurchOrd(var PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header"; ShowError: Boolean)
     Var
         PurchLine2: Record "Purchase Line";
     begin
@@ -146,6 +185,130 @@ codeunit 50100 "Insert Integration Mapping"
 
         end;
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Setup Defaults", 'OnGetCDSTableNo', '', false, false)]
+    local procedure HandleOnGetCDSTableNo(BCTableNo: Integer; var CDSTableNo: Integer; var handled: Boolean)
+    begin
+        if BCTableNo = Database::"Gen. Product Posting Group" then begin
+            CDSTableNo := Database::"CRM Gen Prod Posting Grp Ext";
+            handled := true;
+        end;
+        if BCTableNo = Database::"Dimension Value" then begin
+            CDSTableNo := Database::"CRM Dimension Values";
+            handled := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Lookup CRM Tables", 'OnLookupCRMTables', '', true, true)]
+    local procedure HandleOnLookupCRMTables(CRMTableID: Integer; NAVTableId: Integer; SavedCRMId: Guid; var CRMId: Guid; IntTableFilter: Text; var Handled: Boolean)
+    begin
+        if CRMTableID = Database::"CRM Gen Prod Posting Grp Ext" then
+            Handled := LookupCDSGenPostGrp(SavedCRMId, CRMId, IntTableFilter);
+        if CRMTableID = Database::"CRM Dimension Values" then
+            Handled := LookupCDSDimensions(SavedCRMId, CRMId, IntTableFilter);
+    end;
+
+    local procedure LookupCDSGenPostGrp(SavedCRMId: Guid; var CRMId: Guid; IntTableFilter: Text): Boolean
+    var
+        CDSGenPost: Record "CRM Gen Prod Posting Grp Ext";
+        OriginalCDSGenPost: Record "CRM Gen Prod Posting Grp Ext";
+        OriginalCDSGenPostList: Page "CRM Gen. Prod Posting Grp Ext";
+
+    begin
+        if not IsNullGuid(CRMId) then begin
+            if CDSGenPost.Get(CRMId) then
+                OriginalCDSGenPostList.SetRecord(CDSGenPost);
+            if not IsNullGuid(SavedCRMId) then
+                if OriginalCDSGenPost.get(SavedCRMId) then
+                    OriginalCDSGenPostList.SetCurrentlyCoupledCDSGenPostProd(OriginalCDSGenPost);
+        end;
+
+        CDSGenPost.SetView(IntTableFilter);
+        OriginalCDSGenPostList.SetTableView(CDSGenPost);
+        OriginalCDSGenPostList.LookupMode(true);
+        if OriginalCDSGenPostList.RunModal = Action::LookupOK then begin
+            OriginalCDSGenPostList.GetRecord(CDSGenPost);
+            CRMId := CDSGenPost.sgit_productcategoryid;
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    local procedure LookupCDSDimensions(SavedCRMId: Guid; var CRMId: Guid; IntTableFilter: Text): Boolean
+    var
+        CDSGenPost: Record "CRM Dimension Values";
+        OriginalCDSGenPost: Record "CRM Dimension Values";
+        OriginalCDSGenPostList: Page "CRM Dimension Values";
+
+    begin
+        if not IsNullGuid(CRMId) then begin
+            if CDSGenPost.Get(CRMId) then
+                OriginalCDSGenPostList.SetRecord(CDSGenPost);
+            if not IsNullGuid(SavedCRMId) then
+                if OriginalCDSGenPost.get(SavedCRMId) then
+                    OriginalCDSGenPostList.SetCurrentlyCoupledCDSGenPostProd(OriginalCDSGenPost);
+        end;
+
+        CDSGenPost.SetView(IntTableFilter);
+        OriginalCDSGenPostList.SetTableView(CDSGenPost);
+        OriginalCDSGenPostList.LookupMode(true);
+        if OriginalCDSGenPostList.RunModal = Action::LookupOK then begin
+            OriginalCDSGenPostList.GetRecord(CDSGenPost);
+            CRMId := CDSGenPost.AccountId;
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Setup Defaults", 'OnAddEntityTableMapping', '', true, true)]
+    local procedure HandleOnAddEntityTableMapping(var TempNameValueBuffer: Record "Name/Value Buffer" temporary);
+    var
+        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+    begin
+        AddEntityTableMapping('CDSGenProd', DATABASE::"CRM Gen Prod Posting Grp Ext", TempNameValueBuffer);
+        CRMSetupDefaults.AddEntityTableMapping('CDSGenProd', DATABASE::"CRM Gen Prod Posting Grp Ext", TempNameValueBuffer);
+
+        AddEntityTableMapping('CDSDimensions', DATABASE::"CRM Dimension Values", TempNameValueBuffer);
+        CRMSetupDefaults.AddEntityTableMapping('CDSDimensions', DATABASE::"CRM Dimension Values", TempNameValueBuffer);
+    end;
+
+    local procedure AddEntityTableMapping(CRMEntityTypeName: Text; TableID: Integer; var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
+    begin
+        TempNameValueBuffer.Init();
+        TempNameValueBuffer.ID := TempNameValueBuffer.Count + 1;
+        TempNameValueBuffer.Name := CopyStr(CRMEntityTypeName, 1, MaxStrLen(TempNameValueBuffer.Name));
+        TempNameValueBuffer.Value := Format(TableID);
+        TempNameValueBuffer.Insert();
+    end;
+
+
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnAfterDeleteEvent', '', false, false)]
+    procedure onDeletePucahseLines(var Rec: Record "Purchase Line")
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        SalesHedaer: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        if Rec."Sales Order No." <> '' then begin
+            SalesLine.SetRange("Document No.", Rec."Sales Order No.");
+            SalesLine.SetRange("Line No.", Rec."Sales Order Line No.");
+            if SalesLine.FindFirst() then begin
+                SalesLine."Purchase Order No." := '';
+                SalesLine."Purch. Order Line No." := 0;
+                SalesLine.Modify();
+            end;
+            SalesHedaer.SetRange("No.", SalesLine."Document No.");
+            if SalesHedaer.FindFirst() then begin
+                SalesHedaer."Purchase Order No." := '';
+                SalesHedaer.Modify()
+            end;
+
+        end;
+    end;
+
+
 
 
 
