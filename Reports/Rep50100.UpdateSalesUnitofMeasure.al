@@ -75,6 +75,7 @@ report 50100 "Update Sales Unit of Measure"
                 end;
                 //UpdateDimensionValues();
 
+
             end;
         }
     }
@@ -128,4 +129,18 @@ report 50100 "Update Sales Unit of Measure"
     //         until DimVals.Next() = 0;
     //     CRMIntegrationManagement.CreateNewRecordsFromCRM(DimVals);
     // end;
+    var
+        recDefaultDim: Record "Default Dimension";
+        recCrmdimensionValues: Record "CRM Dimension Values";
+
+        DimensionValue: Code[20];
+        HasDimension: Boolean;
+        recCRMGenProdPostGrp: Record "CRM Gen Prod Posting Grp Ext";
+
+        recCRMProduct: Record "CRM Product";
+        PostingGrp: Guid;
+        recGenProdPostGrp: Record "Gen. Product Posting Group";
+
+        GenProdPostGrp: Guid;
+        ManufactGUID: Guid;
 }

@@ -308,7 +308,40 @@ codeunit 50100 "Insert Integration Mapping"
         end;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterOnInsert', '', false, false)]
 
+    local procedure OnAfterOnInsert(var Item: Record Item; var xItem: Record Item)
+    var
+        recCRMProduct: record "CRM Product";
+        recItem: Record Item;
+        recDefaultDim: Record "Default Dimension";
+        recCrmdimensionValues: Record "CRM Dimension Values";
+        codeunitUpdateDims: Codeunit 50101;
+        CrmPostingGroup: Record "CRM Gen Prod Posting Grp Ext";
+        GenPostingGroup: Record "Gen. Product Posting Group";
+
+    //recIntegrationRecords: Record 5331;
+    begin
+        //Message('In on after Insert trigger');
+        // recIntegrationRecords.SetRange("Integration ID", Item.SystemId);
+
+        recCRMProduct.SetRange(Name, Item.Description);
+        //Message(Item.SystemId);
+        IF recCRMProduct.FindFirst() then begin
+            Item."Dimension Value" := recCRMProduct.Manufacturer;
+            IF recCRMProduct.Posting_Group <> '00000000-0000-0000-0000-000000000000' then begin
+                GenPostingGroup.SetRange("Parent Item", recCRMProduct.Posting_Group);
+                IF GenPostingGroup.FindFirst() then
+                    Item."Gen. Prod. Posting Group" := GenPostingGroup.Code;
+            end;
+        end;
+
+        // CrmPostingGroup.SetRange(Code, GenPostingGroup.Code);
+        // if CrmPostingGroup.FindFirst() then
+        //     Item."Gen. Prod. Posting Group" := recCRMProduct.Posting_Group;
+
+
+    end;
 
 
 
@@ -320,4 +353,6 @@ codeunit 50100 "Insert Integration Mapping"
         recItem: Record item;
         CDSProduct: Record "CRM Product";
         Text052: Label 'The %1 field on the purchase order %2 must be the same as on sales order %3.';
+
+        items: record Item;
 }

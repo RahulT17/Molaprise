@@ -72,4 +72,7 @@ tableextension 50101 "CRM Salesorder Ext" extends "CRM Salesorder"
     }
     var
         test: page 26;
+        crmItem: Record "CRM Product";
+        Dim: Record Dimension;
+        crm: Codeunit "CRM Sales Order to Sales Order";
 }
